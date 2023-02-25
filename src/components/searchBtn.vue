@@ -17,19 +17,23 @@ import { Search } from "@element-plus/icons-vue";
 let nameMic = ref("");
 let songEmits = defineEmits(["song"]);
 function searchBtn() {
-  songEmits("song", nameMic.value);
+  songEmits("song", nameMic);
 }
 </script>
 <style lang="less" scoped>
 .searchMic {
   display: flex;
-  margin: auto;
+  margin: 50px auto 0px;
   width: 500px;
+  transform: translateY(400%) scale(1);
+  transition: transform 0.3s ease-out;
   :deep(.el-input__wrapper) {
-    box-shadow: none;
     border: 1px solid #e9e9eb;
     border-radius: 30px;
     padding: 5px 15px;
   }
+}
+.active {
+  transform: translateY(0) scale(0.9);
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div class="searchMusic">
-    <searchBtn @song="searchMic" :class="{ active: list }" />
+    <search-btn @song="searchMic" :class="{ active: list }" />
     <transition name="list">
       <el-card shadow="never" v-show="list">
         <ul>
@@ -27,6 +27,7 @@
         />
       </el-card>
     </transition>
+    <foot-cop />
     <el-backtop :right="100" :bottom="100" :visibility-height="100" />
   </div>
 </template>
@@ -36,6 +37,7 @@ import { ref, reactive, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useRequest } from "../utils/request";
 import searchBtn from "../components/searchBtn.vue";
+import footCop from "@/components/footCop.vue";
 import { ElMessage } from "element-plus";
 const router = useRouter();
 const route = useRoute();
@@ -48,7 +50,6 @@ let pageinfo = reactive({
   num: 0,
   size: 30
 }); // 分页信息
-let arrMic = reactive({});
 let songs = ref({});
 let songSelect = ref({}); // head：搜索的歌曲名称
 onMounted(() => {
@@ -60,21 +61,21 @@ onMounted(() => {
 });
 async function searchMic(v) {
   songSelect.value = v?.value ?? songSelect.value;
-  arrMic = await execute("http://localhost:3000/search", {
+  const { data: arrMic } = await execute("http://localhost:3000/search", {
     params: {
       keywords: songSelect.value,
       offset: pageinfo.current - 1
     }
   });
   /*请求失败提醒 */
-  if (arrMic.value?.data.code != 200) {
+  if (arrMic.value?.code != 200) {
     console.log(arrMic.value?.code);
     ElMessage.error("Oops:搜索歌曲失败.");
     return;
   }
   list.value = true;
-  songs.value = arrMic.value.data.result.songs;
-  pageinfo.total = arrMic.value.data.result.songCount;
+  songs.value = arrMic.value.result.songs;
+  pageinfo.total = arrMic.value.result.songCount;
   pageinfo.num = Math.floor(pageinfo.total / pageinfo.size);
   pageinfo.ishide = pageinfo.num > 1 ? false : true;
 
@@ -96,21 +97,21 @@ async function searchMic(v) {
 }
 
 const goMusic = async mid => {
-  let micMp3 = await execute("http://localhost:3000/song/url/v1", {
+  const { data: micMp3 } = await execute("http://localhost:3000/song/url/v1", {
     params: {
       id: mid,
       level: "exhigh"
     }
   });
   /*请求失败提醒 */
-  if (micMp3.value?.data.code != 200) {
+  if (micMp3.value?.code != 200) {
     ElMessage.error("Oops:无法获取歌曲资源.");
     return;
   }
 
-  let mp3 = micMp3.value.data.data[0].url;
+  let mp3 = micMp3.value.data[0].url;
   sessionStorage.setItem("url", mp3);
-  router.push({ name: "play", query: { id: mid, name: songSelect.value } });
+  router.push({ path: "/playing", query: { id: mid, name: songSelect.value } });
 };
 // 分页
 const handleCurrentChange = val => {

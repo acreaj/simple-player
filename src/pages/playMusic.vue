@@ -19,6 +19,7 @@
       </li>
     </ul>
   </el-card>
+  <foot-cop />
 </template>
 
 <script setup>
@@ -26,6 +27,7 @@ import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useRequest } from "../utils/request";
 import searchBtn from "../components/searchBtn.vue";
+import footCop from "@/components/footCop.vue";
 import { ElMessage, ElNotification } from "element-plus";
 
 const router = useRouter();
@@ -69,12 +71,12 @@ const activeLrc = () => {
   }, 1000);
 };
 const getLrc = async () => {
-  let micLyc = await execute("http://localhost:3000/lyric", {
+  const { data: micLyc } = await execute("http://localhost:3000/lyric", {
     params: {
       id: route.query.id
     }
   });
-  if (micLyc.value?.data.code != 200) {
+  if (micLyc.value?.code != 200) {
     ElNotification({
       title: "Warning",
       message: "没有搜索到歌词",
@@ -82,7 +84,7 @@ const getLrc = async () => {
     });
     return;
   }
-  let lrc = micLyc.value.data.lrc?.lyric ?? "";
+  let lrc = micLyc.value.lrc?.lyric ?? "";
   lrc.split("\n").map(item => {
     let temobj = {};
     let temarr = item.split("]");
@@ -96,7 +98,7 @@ const getLrc = async () => {
   });
 };
 const searchMic = val => {
-  router.push({ name: "search", query: { name: val.value } });
+  router.push({ path: "/", query: { name: val.value } });
 };
 </script>
 <style lang="less" scoped>

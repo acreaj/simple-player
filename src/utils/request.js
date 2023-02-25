@@ -1,7 +1,7 @@
 /**
  *  @see https://vueuse.org/useAxios
  * usage:
- * 1、{ data } = useAxios(url,params)
+ * 1、{ data } = useRequest(url,params)
  * 2、data = await excute(url,params)
  */
 
@@ -63,13 +63,10 @@ export function useRequest(...args) {
 
   const waitUtilFinished = () =>
     new Promise((resolve, reject) => {
-      toMatch(isLoading)
+      toMatch(isFinished)
         .then(() => resolve(result))
         .catch(reject);
     });
-
-  const then = (onFulfilled, onRejected) =>
-    waitUtilFinished().then(onFulfilled, onRejected);
 
   const execute = (executeUrl = url, config = {}) => {
     error.value = undefined;
@@ -79,7 +76,7 @@ export function useRequest(...args) {
     if (_url === undefined) {
       error.value = new AxiosError(AxiosError.ERR_INVALID_URL);
       isFinished.value = true;
-      return { then };
+      return waitUtilFinished();
     }
 
     loading(true);
@@ -100,7 +97,7 @@ export function useRequest(...args) {
       })
       .finally(() => loading(false));
 
-    return { then };
+    return waitUtilFinished();
   };
 
   if (options.immediate && url) execute();
@@ -109,18 +106,12 @@ export function useRequest(...args) {
     response,
     data,
     error,
-    finished: isFinished,
     loading: isLoading,
     isFinished,
     isLoading,
-    cancel: abort,
     isAborted,
-    canceled: isAborted,
-    aborted: isAborted,
-    isCanceled: isAborted,
     abort,
-    execute,
-    then
+    execute
   };
 
   return {
