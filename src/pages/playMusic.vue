@@ -1,5 +1,5 @@
 <template>
-  <searBtn @song="searchMic" :class="{ active: true }" />
+  <searchBtn @song="searchMic" :class="{ active: true }" />
   <div class="audio-pos">
     <p class="song-name">{{ songName }}</p>
     <audio preload="auto" controls ref="audio" @timeupdate="activeLrc">
@@ -24,13 +24,13 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { useA } from "../utils/request";
-import searBtn from "../components/searchBtn.vue";
+import { useRequest } from "../utils/request";
+import searchBtn from "../components/searchBtn.vue";
 import { ElMessage, ElNotification } from "element-plus";
 
 const router = useRouter();
 const route = useRoute();
-const { execute } = useA();
+const { execute } = useRequest();
 let audio = ref(""); //dom
 let lycWrap = ref(""); //dom
 let mp3 = ref(""); // mp3:url

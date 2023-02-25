@@ -1,9 +1,9 @@
 module.exports = {
   plugins: {
-    "postcss-pxtorem": {
+    /* "postcss-pxtorem": {
       rootValue: 37.5, // 页面写的px尺寸 / rootValue = 转换后的rem单位大小 flexible动态修改rootValue
       propList: ["*", "!font*"]
-    },
+    }, */
     autoprefixer: {
       overrideBrowserslist: [
         "Android 4.1",

@@ -1,6 +1,6 @@
 <template>
   <div class="searchMusic">
-    <searBtn @song="searchMic" :class="{ active: list }" />
+    <searchBtn @song="searchMic" :class="{ active: list }" />
     <transition name="list">
       <el-card shadow="never" v-show="list">
         <ul>
@@ -34,12 +34,12 @@
 <script setup>
 import { ref, reactive, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { useA } from "../utils/request";
-import searBtn from "../components/searchBtn.vue";
+import { useRequest } from "../utils/request";
+import searchBtn from "../components/searchBtn.vue";
 import { ElMessage } from "element-plus";
 const router = useRouter();
 const route = useRoute();
-const { execute } = useA();
+const { execute } = useRequest();
 let list = ref(false); // 是否显示歌曲列表
 let pageinfo = reactive({
   current: 1,

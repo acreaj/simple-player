@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import searchMusic from "@/pages/searchMusic";
-import playMusic from "@/pages/playMusic";
+import searchMusic from "@/pages/searchMusic.vue";
+import playMusic from "@/pages/playMusic.vue";
 const routes = [
   { path: "/", component: searchMusic },
   { path: "/playing", component: playMusic }

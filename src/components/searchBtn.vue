@@ -15,13 +15,21 @@ import { ref } from "vue";
 import { Search } from "@element-plus/icons-vue";
 
 let nameMic = ref("");
-
-function searchBtn() {}
+let songEmits = defineEmits(["song"]);
+function searchBtn() {
+  songEmits("song", nameMic.value);
+}
 </script>
-<style lang="less">
+<style lang="less" scoped>
 .searchMic {
   display: flex;
   margin: auto;
   width: 500px;
+  :deep(.el-input__wrapper) {
+    box-shadow: none;
+    border: 1px solid #e9e9eb;
+    border-radius: 30px;
+    padding: 5px 15px;
+  }
 }
 </style>
