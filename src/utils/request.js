@@ -1,7 +1,8 @@
 /**
- *  use js
- *  useAxios
  *  @see https://vueuse.org/useAxios
+ * usage:
+ * 1、{ data } = useAxios(url,params)
+ * 2、data = await excute(url,params)
  */
 
 import axios, { AxiosError } from "axios";
