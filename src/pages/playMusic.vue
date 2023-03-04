@@ -4,7 +4,6 @@
     <p class="song-name">{{ songName }}</p>
     <audio
       preload="auto"
-      controls
       ref="audio"
       @timeupdate="activeMoving"
       @ended="endPlay"
@@ -81,7 +80,7 @@
       </ul>
     </div>
   </div>
-  <el-card>
+  <el-card v-if="nolyric" shadow="never">
     <ul class="lycwrap" ref="lycWrap">
       <li
         v-for="(words, index) in micObj"
@@ -93,7 +92,9 @@
       </li>
     </ul>
   </el-card>
-  <foot-cop />
+  <p v-show="loading == nolyric" class="no-lyric">未找到歌词</p>
+  <div v-loading="loading" class="loading-lyric"></div>
+  <foot-cop :class="{ active: !nolyric }" />
 </template>
 
 <script setup>
@@ -104,6 +105,79 @@ import { useRequest } from "../utils/request";
 import searchBtn from "../components/searchBtn.vue";
 import footCop from "@/components/footCop.vue";
 import { ElMessage, ElNotification } from "element-plus";
+const router = useRouter();
+const route = useRoute();
+const { execute } = useRequest();
+let audio = ref(""); //dom
+let lycWrap = ref(""); //dom
+let mp3 = ref(""); // mp3:url
+let songName = ref("无法加载"); // 歌曲名称
+let micObj = ref([]); // arr：歌词
+let lyricIndex = ref(0); // active：歌词
+let loading = ref(false);
+let nolyric = ref(false);
+const splitTime = (val, time = 0) => {
+  let temptime = parseInt(time);
+  let min = parseInt(temptime / 60);
+  let sec = temptime % 60;
+  sec = sec > 9 ? sec : `0${sec}`;
+  val.value = `${min}:${sec}`;
+};
+onMounted(() => {
+  mp3.value = sessionStorage.getItem("url");
+
+  //分析音频时间
+  audio.value.onloadedmetadata = () => {
+    splitTime(totalTime, audio.value.duration);
+  };
+  if (route.query?.id) {
+    songName.value = route.query.name;
+    getLrc();
+  } else {
+    ElMessage({
+      type: "error",
+      message: "Oops:未传入歌曲,即将返回.",
+      onClose: () => {
+        router.push("/");
+      },
+      duration: 2000
+    });
+  }
+});
+const getLrc = async () => {
+  loading.value = true;
+  const { data: micLyc } = await execute("http://localhost:3000/lyric", {
+    params: {
+      id: route.query.id
+    }
+  });
+  if (micLyc.value?.code != 200) {
+    ElNotification({
+      title: "Warning",
+      message: "没有搜索到歌词",
+      type: "warning"
+    });
+    loading.value = false;
+    return;
+  }
+  nolyric.value = true;
+  loading.value = false;
+  let lrc = micLyc.value.lrc?.lyric ?? "\n";
+  lrc.split("\n").map(item => {
+    let temobj = {};
+    let temarr = item.split("]");
+    let temptime = temarr[0]
+      .substring(1)
+      .split(":")
+      .map(item => Number(item));
+    temobj.time = temptime[0] * 60 + temptime[1];
+    temobj.text = temarr[1] ?? "";
+    micObj.value.push(temobj);
+  });
+};
+const searchMic = val => {
+  router.push({ path: "/", query: { name: val.value } });
+};
 
 // 音乐播放按钮
 let isplay = ref(true);
@@ -124,6 +198,10 @@ let volbtn = ref(""); //dom:调整音量按钮
 let orix = ref(0); //音量开始所在位置
 let oriright = ref(""); //音量百分比
 let isActive = ref(false); //调整音量
+let jump = reactive({
+  go: true,
+  value: 0
+}); //歌曲向前（正常）播放
 // seeked：用户跳转音乐加载
 const loadBuffer = () => {
   console.log("buffer");
@@ -320,78 +398,6 @@ const muteVolumn = () => {
     volbar.value.style.width = "0%";
   }
 };
-
-const router = useRouter();
-const route = useRoute();
-const { execute } = useRequest();
-let audio = ref(""); //dom
-let lycWrap = ref(""); //dom
-let mp3 = ref(""); // mp3:url
-let songName = ref("无法加载"); // 歌曲名称
-let micObj = ref([]); // arr：歌词
-let lyricIndex = ref(0); // active：歌词
-let jump = reactive({
-  go: true,
-  value: 0
-}); //歌曲向前（正常）播放
-const splitTime = (val, time = 0) => {
-  let temptime = parseInt(time);
-  let min = parseInt(temptime / 60);
-  let sec = temptime % 60;
-  sec = sec > 9 ? sec : `0${sec}`;
-  val.value = `${min}:${sec}`;
-};
-onMounted(() => {
-  mp3.value = sessionStorage.getItem("url");
-
-  //分析音频
-  audio.value.onloadedmetadata = () => {
-    splitTime(totalTime, audio.value.duration);
-  };
-  if (route.query?.id) {
-    songName.value = route.query.name;
-    getLrc();
-  } else {
-    ElMessage({
-      type: "error",
-      message: "Oops:未传入歌曲,即将返回.",
-      onClose: () => {
-        router.push("/");
-      },
-      duration: 2000
-    });
-  }
-});
-const getLrc = async () => {
-  const { data: micLyc } = await execute("http://localhost:3000/lyric", {
-    params: {
-      id: route.query.id
-    }
-  });
-  if (micLyc.value?.code != 200) {
-    ElNotification({
-      title: "Warning",
-      message: "没有搜索到歌词",
-      type: "warning"
-    });
-    return;
-  }
-  let lrc = micLyc.value.lrc?.lyric ?? "\n";
-  lrc.split("\n").map(item => {
-    let temobj = {};
-    let temarr = item.split("]");
-    let temptime = temarr[0]
-      .substring(1)
-      .split(":")
-      .map(item => Number(item));
-    temobj.time = temptime[0] * 60 + temptime[1];
-    temobj.text = temarr[1] ?? "";
-    micObj.value.push(temobj);
-  });
-};
-const searchMic = val => {
-  router.push({ path: "/", query: { name: val.value } });
-};
 </script>
 <style lang="less" scoped>
 .palyer-wrap {
@@ -581,5 +587,13 @@ const searchMic = val => {
   .active {
     color: #409eff;
   }
+}
+.no-lyric {
+  margin: 15px;
+  text-align: center;
+  color: #807373;
+}
+.loading-lyric {
+  margin: 15px;
 }
 </style>

@@ -2,7 +2,7 @@
   <div class="searchMusic">
     <search-btn @song="searchMic" :class="{ active: list }" />
     <transition name="list">
-      <el-card shadow="never" v-show="list">
+      <el-card shadow="never" v-show="list && !loading">
         <ul>
           <li
             v-for="(song, index) in songs"
@@ -27,7 +27,8 @@
         />
       </el-card>
     </transition>
-    <foot-cop :class="{ active: !list }" />
+    <div v-loading="loading" class="content-loading"></div>
+    <foot-cop :class="{ active: list == loading }" />
     <el-backtop :right="70" :bottom="100" :visibility-height="100" />
   </div>
 </template>
@@ -42,7 +43,6 @@ import { ElMessage } from "element-plus";
 const router = useRouter();
 const route = useRoute();
 const { execute } = useRequest();
-let list = ref(false); // 是否显示歌曲列表
 let pageinfo = reactive({
   current: 1,
   ishide: true,
@@ -52,6 +52,8 @@ let pageinfo = reactive({
 }); // 分页信息
 let songs = ref({});
 let songSelect = ref({}); // head：搜索的歌曲名称
+let list = ref(false); // 是否显示歌曲列表
+let loading = ref(false);
 onMounted(() => {
   if (route.query?.name) {
     list.value = true;
@@ -60,6 +62,8 @@ onMounted(() => {
   }
 });
 async function searchMic(v) {
+  list.value = true;
+  loading.value = true;
   songSelect.value = v?.value ?? songSelect.value;
   const { data: arrMic } = await execute("http://localhost:3000/search", {
     params: {
@@ -71,9 +75,11 @@ async function searchMic(v) {
   if (arrMic.value?.code != 200) {
     console.log(arrMic.value?.code);
     ElMessage.error("Oops:搜索歌曲失败.");
+    list.value = false;
+    loading.value = false;
     return;
   }
-  list.value = true;
+  loading.value = false;
   songs.value = arrMic.value.result.songs;
   pageinfo.total = arrMic.value.result.songCount;
   pageinfo.num = Math.floor(pageinfo.total / pageinfo.size);
@@ -97,6 +103,7 @@ async function searchMic(v) {
 }
 
 const goMusic = async mid => {
+  loading.value = true;
   const { data: micMp3 } = await execute("http://localhost:3000/song/url/v1", {
     params: {
       id: mid,
@@ -106,9 +113,10 @@ const goMusic = async mid => {
   /*请求失败提醒 */
   if (micMp3.value?.code != 200) {
     ElMessage.error("Oops:无法获取歌曲资源.");
+    loading.value = false;
     return;
   }
-
+  loading.value = false;
   let mp3 = micMp3.value.data[0].url;
   sessionStorage.setItem("url", mp3);
   router.push({ path: "/playing", query: { id: mid, name: songSelect.value } });
@@ -120,6 +128,10 @@ const handleCurrentChange = val => {
 };
 </script>
 <style lang="less" scoped>
+.content-loading {
+  margin: 80px auto;
+  width: 900px;
+}
 .el-card {
   margin: 80px auto;
   width: 900px;
