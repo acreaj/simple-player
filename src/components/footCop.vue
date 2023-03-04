@@ -14,4 +14,9 @@ import { StarFilled } from "@element-plus/icons-vue";
   text-align: center;
   padding-bottom: 15px;
 }
+.active {
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+}
 </style>

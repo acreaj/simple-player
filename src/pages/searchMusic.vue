@@ -18,7 +18,7 @@
         <el-pagination
           :current-page="pageinfo.current"
           :page-size="pageinfo.size"
-          :pager-count="7"
+          :pager-count="5"
           :page-count="pageinfo.num"
           layout="total, prev, pager, next"
           :total="pageinfo.total"
@@ -27,8 +27,8 @@
         />
       </el-card>
     </transition>
-    <foot-cop />
-    <el-backtop :right="100" :bottom="100" :visibility-height="100" />
+    <foot-cop :class="{ active: !list }" />
+    <el-backtop :right="70" :bottom="100" :visibility-height="100" />
   </div>
 </template>
 
