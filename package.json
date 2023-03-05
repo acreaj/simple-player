@@ -41,8 +41,8 @@
     "vite": "^4.0.0"
   },
   "lint-staged": {
-    "*.{vue,js,jsx,cjs,mjs}": "eslint --cache --fix",
-    "*.{js,css,md}": "prettier --write"
+    "src/**/*.{vue,js,jsx,cjs,mjs}":"eslint --cache --fix",
+    "src/**/*.{vue,js,jsx,cjs,mjs}.{js,css,md}":"prettier --write"
   },
   "browserslist": [
     "defaults",
