@@ -1,0 +1,51 @@
+/* html,
+body {
+  width: 100%;
+  height: 100%;
+} */
+
+li {
+  list-style-type: none;
+}
+
+/* #app {
+  height: 100%;
+} */
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/* @media only screen and (max-width: 500px) {
+  audio {
+    width: 220px;
+    height: 44px
+  }
+  .searchMic {
+    width: 300px !important;
+  }
+  .audio-pos {
+    width: 330px !important;
+  }
+  .el-card {
+    width: 96% !important;
+  }
+}
+ */
+@media only screen and (max-width: 800px) {
+  audio {
+    display: none;
+  }
+}
+@media only screen and (max-width: 920px) {
+  .searchMic {
+    width: 65% !important;
+  }
+  .audio-pos {
+    width: 70% !important;
+  }
+  .el-card {
+    width: 90% !important;
+  }
+}
