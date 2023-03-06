@@ -15,8 +15,7 @@ module.exports = {
         "test", // 增加测试
         "chore", // 构建过程或辅助工具的变动
         "revert", // 回退
-        "build", // 打包
-        "clean" //清空status
+        "build" // 打包
       ]
     ],
     // subject 大小写不做校验
